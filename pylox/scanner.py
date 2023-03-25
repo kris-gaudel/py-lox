@@ -1,4 +1,3 @@
-from lox import Lox
 from lox_token import LoxToken
 from token_type import TokenType
 
@@ -9,13 +8,30 @@ class Scanner:
         self.start = 0
         self.current = 0
         self.line = 1
+        self.keywords = {
+            "and" : TokenType.AND,
+            "class" : TokenType.CLASS,
+            "else" : TokenType.ELSE,
+            "false" : TokenType.FALSE,
+            "for" : TokenType.FOR,
+            "fun" : TokenType.FUN,
+            "if" : TokenType.IF,
+            "nil" : TokenType.NIL,
+            "or" : TokenType.OR,
+            "print" : TokenType.PRINT,
+            "return" : TokenType.RETURN,
+            "super" : TokenType.SUPER,
+            "this" : TokenType.THIS,
+            "true" : TokenType.TRUE,
+            "var" : TokenType.VAR,
+            "while" : TokenType.WHILE
+        }
 
     def scan_tokens(self):
-        print("TEST")
         while not self.is_at_end():
             self.start = self.current
             self.scan_token()
-        self.tokens.append(LoxToken(TokenType.EOF, "", None, self.line))
+        self.tokens.append(LoxToken(TokenType.EOF, TokenType.EOF.value, None, self.line))
         return self.tokens
 
     def is_at_end(self):
@@ -62,11 +78,19 @@ class Scanner:
             else:
                 self.add_token(TokenType.SLASH)   
         elif c == '\n':
-            self.line += 1   
-        elif c == '"':
-            self.string()      
+            self.line += 1
+        elif c == ' ':
+            self.string()
+        elif c == 'o':
+            if (self.peek() == 'r'):
+                self.add_token(TokenType.OR)      
         else:
-            Lox.error(self.line, "Unexpected character.")
+            if (c.isdigit()):
+                self.number()
+            elif (c.isalpha()):
+                self.identifier()
+            else:
+                raise ValueError("Unexpected character.")
 
     def advance(self):
         self.current += 1
@@ -93,12 +117,36 @@ class Scanner:
         return self.source[self.current]
 
     def string(self):
-        while (self.peek() != '"' and self.is_at_end() == False):
+        while (self.peek() != ' ' and self.is_at_end() == False):
             if (self.peek() == '\n'):
                 self.line += 1
             self.advance()
         if (self.is_at_end()):
-            Lox.error(self.line, "Unterminated string.")
+            raise ValueError("Unterminated string.")
         self.advance()
         value = self.source[self.start + 1:self.current - 1]
-        self.add_token(TokenType.STRING, value)
+        self.add_token_main(TokenType.STRING, value)
+
+    def number(self):
+        while (self.peek().isdigit()):
+            self.advance()
+        if (self.peek() == '.' and self.peek_next().isdigit()):
+            self.advance()
+            while (self.peek().isdigit()):
+                self.advance()
+        self.add_token_main(TokenType.NUMBER, float(self.source[self.start:self.current]))
+
+    def peek_next(self):
+        if (self.current + 1 >= len(self.source)):
+            return '\0'
+        return self.source[self.current + 1]
+        
+    def identifier(self):
+        while (self.peek().isalnum()):
+            self.advance()
+        text = self.source[self.start:self.current]
+        type = self.keywords.get(text)
+        if (type == None):
+            type = TokenType.IDENTIFIER
+        self.add_token(type)
+    

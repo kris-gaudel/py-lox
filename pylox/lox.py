@@ -1,4 +1,5 @@
 import sys
+from scanner import Scanner
 
 class Lox:
     def __init__(self):
@@ -27,7 +28,7 @@ class Lox:
 
     def run(self, source):
         scanner = Scanner(source)
-        tokens = scanner.scanTokens()
+        tokens = scanner.scan_tokens()
         for token in tokens:
             print(token)
      
@@ -39,3 +40,5 @@ class Lox:
         self.has_error = True
 
 
+l = Lox()
+l.run_prompt()
