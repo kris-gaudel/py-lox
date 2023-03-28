@@ -12,7 +12,6 @@ class AstPrinter:
                 Expr.Literal(123)),
                 lox_token.LoxToken(scanner.TokenType.STAR, "*", None, 1),
                 Expr.Grouping(Expr.Literal(45.67)))
-        #print(expression)
         print(AstPrinter().print_expr(expression))
 
     def print_expr(self, expr: Expr):
