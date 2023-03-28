@@ -79,7 +79,9 @@ class Scanner:
                 self.add_token(TokenType.SLASH)   
         elif c == '\n':
             self.line += 1
-        elif c == ' ':
+        elif c == ' ' or c == '\r' or c == '\t':
+            pass
+        elif c == '"':
             self.string()
         elif c == 'o':
             if (self.peek() == 'r'):
@@ -117,7 +119,7 @@ class Scanner:
         return self.source[self.current]
 
     def string(self):
-        while (self.peek() != ' ' and self.is_at_end() == False):
+        while (self.peek() != '"' and self.is_at_end() == False):
             if (self.peek() == '\n'):
                 self.line += 1
             self.advance()
@@ -149,4 +151,5 @@ class Scanner:
         if (type == None):
             type = TokenType.IDENTIFIER
         self.add_token(type)
+    
     
