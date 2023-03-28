@@ -21,7 +21,7 @@ class GenerateAst:
         self.define_ast("Expr", self.types)
     
     def define_ast(self, baseName, types):
-        path = baseName + ".py"
+        path = "../src/" + baseName + ".py"
         file = open(path, "w")
         file.write('from abc import abstractmethod\n')
         file.write(f'class {baseName}:\n')
@@ -33,6 +33,7 @@ class GenerateAst:
         for className, fields in types.items():
             file.write('\n')
             self.define_type(file, baseName, className, fields)
+        file.write('\n')
     
     def define_type(self, file, baseName, className, fields):
         file.write(f'class {className}({baseName}):')
@@ -52,9 +53,14 @@ class GenerateAst:
                 att = field.split(":")[0]
                 file.write(f'{TAB * 2}self.{att} = {att}')
                 file.write('\n')
+        file.write('\n')
+        file.write(f'{TAB}def accept(self, visitor):\n')
+        file.write(f'{TAB * 2}return visitor.visit_{className.lower()}_expr(self)')
+        file.write('\n')
+        
 
-# Sanity check
-# g = GenerateAst()
-# g.main()
+#Sanity check
+g = GenerateAst()
+g.main()
 
         
