@@ -2,7 +2,6 @@ import Expr
 import scanner
 import lox_token
 
-
 class AstPrinter:
 
     def main(self):
