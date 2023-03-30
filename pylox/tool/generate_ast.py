@@ -23,7 +23,8 @@ class GenerateAst:
     def define_ast(self, baseName, types):
         path = "../src/" + baseName + ".py"
         file = open(path, "w")
-        file.write('from abc import abstractmethod\n')
+        file.write('from abc import ABC, abstractmethod\n')
+        self.define_visitor(file, baseName, types)
         file.write(f'class {baseName}:\n')
         file.write(f'{TAB}')
         file.write(f'@abstractmethod\n')
@@ -58,6 +59,22 @@ class GenerateAst:
         file.write(f'{TAB * 2}return visitor.visit_{className.lower()}_expr(self)')
         file.write('\n')
         
+    def define_visitor(self, file, baseName, types):
+        visitor = f'{baseName}Visitor'
+        file.write(f'\n')
+        file.write(f'class {visitor}(ABC):')
+
+        for type in types:
+            file.write('\n')
+            file.write(f'{TAB}@abstractmethod')
+            file.write('\n')
+            file.write(f'{TAB}')
+            file.write(f"def visit_{type.lower()}_{baseName.lower()}(self, expr):")
+            file.write('\n')
+            file.write(f'{TAB * 2}pass')
+            file.write('\n')
+        file.write(f'\n')
+
 
 #Sanity check
 g = GenerateAst()
