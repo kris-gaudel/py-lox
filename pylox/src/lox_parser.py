@@ -1,9 +1,9 @@
 from token_type import TokenType
-from lox import Lox
+#from lox import Lox
 import Expr
 
-class ParseError(Exception):
-    pass
+class ParseError(RuntimeError):
+    """An error has occurred!"""
 
 class Parser:
     def __init__(self, tokens):
@@ -86,25 +86,56 @@ class Parser:
     def primary(self):
         if (self.match(TokenType.FALSE)):
             return Expr.Literal(False)
-        if (self.match(TokenType.TRUE)):
+        elif (self.match(TokenType.TRUE)):
             return Expr.Literal(True)
-        if (self.match(TokenType.NIL)):
+        elif (self.match(TokenType.NIL)):
             return Expr.Literal(None)
-        if (self.match(TokenType.NUMBER, TokenType.STRING)):
+        elif (self.match(TokenType.NUMBER, TokenType.STRING)):
             return Expr.Literal(self.previous().literal)
-        if (self.match(TokenType.LEFT_PAREN)):
+        elif (self.match(TokenType.LEFT_PAREN)):
             expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Expr.Grouping(expr)
+        return self.error(self.peek(), "Expect expression.")
         
     def consume(self, type, message):
         if (self.check(type)):
             return self.advance() 
-        
         return self.error(self.peek(), message)
 
     def error(self, token, message):
-        Lox.error(token, message)
-        return ParseError()
-    
-    
+        #Lox.error(token, message)
+        raise RuntimeError(message)
+
+
+    def synchronize(self):
+        self.advance()
+        while(not self.is_at_end()):
+            if (self.previous().type == TokenType.SEMICOLON):
+                return
+            
+            if (self.peek().type == TokenType.CLASS):
+                return
+            elif (self.peek().type == TokenType.FUN):
+                return
+            elif (self.peek().type == TokenType.VAR):
+                return
+            elif (self.peek().type == TokenType.FOR):
+                return
+            elif (self.peek().type == TokenType.IF):
+                return
+            elif (self.peek().type == TokenType.WHILE):
+                return
+            elif (self.peek().type == TokenType.PRINT):
+                return
+            elif (self.peek().type == TokenType.RETURN):
+                return
+        self.advance()
+        
+    def parse(self):
+        try:
+            return self.expression()
+        except ParseError as error:
+            return None
+
+        

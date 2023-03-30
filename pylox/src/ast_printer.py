@@ -20,7 +20,7 @@ class AstPrinter:
         return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
 
     def visit_grouping_expr(self, expr: Expr):
-        return self.parenthesize("group", expr.expr)
+        return self.parenthesize("", expr.expr)
     
     def visit_literal_expr(self, expr: Expr):
         return str(expr.value)
@@ -38,5 +38,4 @@ class AstPrinter:
         out += ")"
         return out
     
-a = AstPrinter()
-a.main()
+# a = AstPrinter()
