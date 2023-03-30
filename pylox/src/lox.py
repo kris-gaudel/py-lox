@@ -39,5 +39,5 @@ class Lox:
         print("[line " + line + "] Error" + where + ": " + message)
         self.has_error = True
 
-s = Lox()
-s.run_prompt()
+# s = Lox()
+# s.run_prompt()
