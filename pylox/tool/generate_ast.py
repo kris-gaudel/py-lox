@@ -6,19 +6,25 @@ class GenerateAst:
     def __init__(self):
         # self.args = sys.argv
         # self.outputDir = None # TODO: Add directory handling
-        self.types = {
+        self.expressions = {
             "Binary": ('left', 'operator', 'right'),
             "Grouping": ('expr'),
             "Literal": ('value'),
             "Unary": ('operator', 'right')
             }
+        self.statements = {
+            "Expression": ('expr'),
+            "Print": ('expr')
+        }
     
     def main(self):
         # TODO: Add directory handling
         # if (len(self.args) != 1):
         #     raise ValueError("Usage: generate_ast <output directory>")
         # self.outputDir = self.args[1]
-        self.define_ast("Expr", self.types)
+        self.define_ast("Expr", self.expressions)
+        self.define_ast("Stmt", self.statements)
+
     
     def define_ast(self, baseName, types):
         path = "../src/" + baseName + ".py"
@@ -56,7 +62,7 @@ class GenerateAst:
                 file.write('\n')
         file.write('\n')
         file.write(f'{TAB}def accept(self, visitor):\n')
-        file.write(f'{TAB * 2}return visitor.visit_{className.lower()}_expr(self)')
+        file.write(f'{TAB * 2}return visitor.visit_{className.lower()}_{baseName.lower()}(self)')
         file.write('\n')
         
     def define_visitor(self, file, baseName, types):

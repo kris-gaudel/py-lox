@@ -1,6 +1,7 @@
 from token_type import TokenType
 #from lox import Lox
 import Expr
+import Stmt
 
 class ParseError(RuntimeError):
     """An error has occurred!"""
@@ -133,9 +134,24 @@ class Parser:
         self.advance()
         
     def parse(self):
-        try:
-            return self.expression()
-        except ParseError as error:
-            return None
+        statements = []
+        while (not self.is_at_end()):
+            statements.append(self.statement())
+        return statements
+    
+    def statement(self):
+        if (self.match(TokenType.PRINT)):
+            return self.print_statement()
+        return self.expression_statement()
+    
+    def print_statement(self):
+        value = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return Stmt.Print(value)
+    
+    def expression_statement(self):
+        expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+        return Stmt.Expression(expr)
 
         

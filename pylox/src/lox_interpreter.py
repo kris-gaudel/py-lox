@@ -1,6 +1,8 @@
 import Expr
+import Stmt
 from token_type import TokenType
-class Interpreter(Expr.ExprVisitor):
+
+class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     def visit_literal_expr(self, expr):
         return expr.value
     
@@ -77,6 +79,15 @@ class Interpreter(Expr.ExprVisitor):
     def evaluate(self, expr):
         return expr.accept(self)
     
+    def visit_expression_stmt(self, stmt):
+        self.evaluate(stmt.expr)
+        return None
+    
+    def visit_print_stmt(self, stmt):
+        value = self.evaluate(stmt.expr)
+        print(self.stringify(value))
+        return None
+    
     def is_truthy(self, object):
         if (object == None):
             return False
@@ -85,12 +96,15 @@ class Interpreter(Expr.ExprVisitor):
         except:
             return True
         
-    def interpret(self, expr):
+    def interpret(self, statements):
         try:
-            value = self.evaluate(expr)
-            print(self.stringify(value))
+            for statement in statements:
+                self.execute(statement)
         except RuntimeError as error:
             raise error
+        
+    def execute(self, stmt):
+        stmt.accept(self)
         
     def stringify(self, object):
         if (object == None):

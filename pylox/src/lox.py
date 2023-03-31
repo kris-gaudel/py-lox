@@ -2,7 +2,7 @@ import sys
 from scanner import Scanner
 from lox_parser import Parser
 from lox_interpreter import Interpreter
-from ast_printer import AstPrinter
+# from ast_printer import AstPrinter
 from token_type import TokenType
 
 
@@ -37,11 +37,11 @@ class Lox:
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
         parser = Parser(tokens)
-        expression = parser.parse()
+        statements = parser.parse()
         if (self.has_error or self.has_runtime_error):
             return
         # print(AstPrinter().print_expr(expression))
-        self.interpreter.interpret(expression)
+        self.interpreter.interpret(statements)
      
     def parse_error(self, token, message):
         if token.type == TokenType.EOF:
