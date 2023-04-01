@@ -12,7 +12,7 @@ class Parser:
         self.tokens = tokens
         
     def expression(self):
-        return self.equality()
+        return self.assignment()
     
     def declaration(self):
         try:
@@ -173,4 +173,13 @@ class Parser:
         self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
         return Stmt.Expression(expr)
 
+    def assignment(self):
+        expr = self.equality()
+        if (self.match(TokenType.EQUAL)):
+            equals = self.previous()
+            value = self.assignment()
+            if (isinstance(expr, Expr.Variable)):
+                return Expr.Assign(expr.name, value)
+            raise ParseError("Invalid assignment target.")
+        return expr
         
