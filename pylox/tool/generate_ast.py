@@ -7,6 +7,7 @@ class GenerateAst:
         # self.args = sys.argv
         # self.outputDir = None # TODO: Add directory handling
         self.expressions = {
+            "Assign": ('name', 'value'),
             "Binary": ('left', 'operator', 'right'),
             "Grouping": ('expr'),
             "Literal": ('value'),
@@ -14,6 +15,7 @@ class GenerateAst:
             "Variable": ('name')
             }
         self.statements = {
+            "Block": ('stmts'),
             "Expression": ('expr'),
             "Print": ('expr'),
             "Var": ('name', 'initalizer')

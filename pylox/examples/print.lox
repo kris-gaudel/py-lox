@@ -1,9 +1,11 @@
 print "kris";
 print "kris" + "tofer";
 print 1.0 + 1.1;
-print 9 - 8;
+print 9.0 - 8.0;
 print (6.2 + 2) / (3 * 1) - 10;
 print -10 - 9;
 print "one";
 print true;
 print false;
+print "kris" + 4.2;
+print "kris" + 4;
