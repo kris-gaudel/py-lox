@@ -2,7 +2,6 @@ import sys
 from scanner import Scanner
 from lox_parser import Parser
 from lox_interpreter import Interpreter
-# from ast_printer import AstPrinter
 from token_type import TokenType
 
 
@@ -14,10 +13,10 @@ class Lox:
         self.interpreter = Interpreter()
     
     def main(self):
-        if (len(self.args) > 1):
+        if (len(self.args) > 2):
             print("Usage: py-lox [script]")
-        elif (len(self.args) == 1):
-            self.run_file(self.args[0])
+        elif (len(self.args) == 2):
+            self.run_file(self.args[1])
         else:
             self.run_prompt()
 
@@ -62,4 +61,4 @@ class Lox:
         self.has_error = True
 
 s = Lox()
-s.run_prompt()
+s.main()

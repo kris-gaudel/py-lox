@@ -7,13 +7,13 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         return expr.value
     
     def visit_grouping_expr(self, expr):
-        return self.evaluate(expr.expression)
+        return self.evaluate(expr.expr)
     
     def visit_unary_expr(self, expr):
         right = self.evaluate(expr.right)
 
         if (expr.operator.type == TokenType.MINUS):
-            self.check_num_operand(expr.operator, right)
+            self.check_num_operand(right)
             return -1 * float(right)
         elif (expr.operator.type == TokenType.BANG):
             return not self.is_truthy(right)
@@ -117,6 +117,3 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
             return text
         
         return str(object)
-
-
-
