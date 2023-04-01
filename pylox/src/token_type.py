@@ -4,8 +4,8 @@ class TokenType(Enum):
     # Single-character tokens.
     LEFT_PAREN = '(',
     RIGHT_PAREN = ')', 
-    LEFT_CURLY_BRACE = '{'
-    RIGHT_CURLY_BRACE = '}'
+    LEFT_BRACE = '{'
+    RIGHT_BRACE = '}'
     COMMA = ','
     DOT = '.'
     MINUS = '-'

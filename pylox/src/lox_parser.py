@@ -36,7 +36,7 @@ class Parser:
         return self.peek().type == type
     
     def advance(self):
-        if (self.is_at_end() == False):
+        if (not self.is_at_end()):
             self.current += 1
         return self.previous()
     
@@ -97,24 +97,23 @@ class Parser:
             expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Expr.Grouping(expr)
-        return self.error(self.peek(), "Expect expression.")
+        #return self.error(self.peek(), "Expect expression.")
+        raise ParseError("Expect expression.")
         
     def consume(self, type, message):
         if (self.check(type)):
             return self.advance() 
-        return self.error(self.peek(), message)
-
-    def error(self, token, message):
-        #Lox.error(token, message)
         raise RuntimeError(message)
 
+    def error(self, message):
+        #Lox.error(token, message)
+        raise RuntimeError(message)
 
     def synchronize(self):
         self.advance()
         while(not self.is_at_end()):
             if (self.previous().type == TokenType.SEMICOLON):
                 return
-            
             if (self.peek().type == TokenType.CLASS):
                 return
             elif (self.peek().type == TokenType.FUN):

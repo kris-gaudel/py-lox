@@ -14,7 +14,7 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
 
         if (expr.operator.type == TokenType.MINUS):
             self.check_num_operand(right)
-            return -1 * float(right)
+            return -float(right)
         elif (expr.operator.type == TokenType.BANG):
             return not self.is_truthy(right)
 
@@ -38,12 +38,12 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         elif (expr.operator.type == TokenType.LESS_EQUAL):
             self.check_num_operands(left, right)
             return float(left) <= float(right)
-        elif (expr.operator.type == TokenType.EQUAL):
-            self.check_num_operands(left, right)
-            return not self.is_equal(left, right)
-        elif (expr.operator.type == TokenType.BANG_EQUAL):
+        elif (expr.operator.type == TokenType.EQUAL_EQUAL):
             self.check_num_operands(left, right)
             return self.is_equal(left, right)
+        elif (expr.operator.type == TokenType.BANG_EQUAL):
+            self.check_num_operands(left, right)
+            return not self.is_equal(left, right)
         elif (expr.operator.type == TokenType.PLUS):
             if (isinstance(left, float) and isinstance(right, float)):
                 return float(left) + float(right)
@@ -74,7 +74,7 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
             return True
         elif (a == None):
             return False
-        return a is b
+        return a == b
 
     def evaluate(self, expr):
         return expr.accept(self)
@@ -89,12 +89,11 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         return None
     
     def is_truthy(self, object):
-        if (object == None):
+        if (object is None):
             return False
-        try:
+        elif (isinstance(object, bool)):
             return bool(object)
-        except:
-            return True
+        return True
         
     def interpret(self, statements):
         try:

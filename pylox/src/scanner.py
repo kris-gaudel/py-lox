@@ -31,7 +31,7 @@ class Scanner:
         while not self.is_at_end():
             self.start = self.current
             self.scan_token()
-        self.tokens.append(LoxToken(TokenType.EOF, TokenType.EOF.value, None, self.line))
+        self.tokens.append(LoxToken(TokenType.EOF, "", None, self.line))
         return self.tokens
 
     def is_at_end(self):
@@ -44,9 +44,9 @@ class Scanner:
         elif c == ')':
             self.add_token(TokenType.RIGHT_PAREN)
         elif c == '{':
-            self.add_token(TokenType.LEFT_CURLY_BRACE)
+            self.add_token(TokenType.LEFT_BRACE)
         elif c == '}':
-            self.add_token(TokenType.RIGHT_CURLY_BRACE)
+            self.add_token(TokenType.RIGHT_BRACE)
         elif c == ',':
             self.add_token(TokenType.COMMA)
         elif c == '.':
@@ -119,7 +119,7 @@ class Scanner:
         return self.source[self.current]
 
     def string(self):
-        while (self.peek() != '"' and self.is_at_end() == False):
+        while (self.peek() != '"' and not self.is_at_end()):
             if (self.peek() == '\n'):
                 self.line += 1
             self.advance()
@@ -148,7 +148,7 @@ class Scanner:
             self.advance()
         text = self.source[self.start:self.current]
         type = self.keywords.get(text)
-        if (type == None):
+        if (type is None):
             type = TokenType.IDENTIFIER
         self.add_token(type)
     
