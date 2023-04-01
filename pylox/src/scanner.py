@@ -60,17 +60,25 @@ class Scanner:
         elif c == '*':
             self.add_token(TokenType.STAR)
         elif c == '!':
-            to_add = self.match('=') if TokenType.BANG_EQUAL else TokenType.BANG
-            self.add_token(to_add)
+            if (self.match('=')):
+                self.add_token(TokenType.BANG_EQUAL)
+            else:
+                self.add_token(TokenType.BANG)
         elif c == '=':
-            to_add = self.match('=') if TokenType.EQUAL_EQUAL else TokenType.EQUAL
-            self.add_token(to_add)
+            if (self.match('=')):
+                self.add_token(TokenType.EQUAL_EQUAL)
+            else:
+                self.add_token(TokenType.EQUAL)
         elif c == '>':
-            to_add = self.match('=') if TokenType.GREATER_EQUAL else TokenType.GREATER
-            self.add_token(to_add)
+            if (self.match('=')):
+                self.add_token(TokenType.GREATER_EQUAL)
+            else:
+                self.add_token(TokenType.GREATER)
         elif c == '<':
-            to_add = self.match('=') if TokenType.LESS_EQUAL else TokenType.LESS
-            self.add_token(to_add)
+            if (self.match('=')):
+                self.add_token(TokenType.LESS_EQUAL)
+            else:
+                self.add_token(TokenType.LESS)
         elif c == '/':
             if (self.match('/')):
                 while ((self.peek() != '\n') and (self.is_at_end() == False)):

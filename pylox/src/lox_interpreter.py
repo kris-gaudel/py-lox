@@ -1,8 +1,12 @@
 import Expr
 import Stmt
 from token_type import TokenType
+from environment import Environment
 
 class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
+    def __init__(self) -> None:
+        self.environment = Environment()
+
     def visit_literal_expr(self, expr):
         return expr.value
     
@@ -19,6 +23,9 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
             return not self.is_truthy(right)
 
         return None
+    
+    def visit_variable_expr(self, expr):
+        return self.environment.get(expr.name)
     
     def visit_binary_expr(self, expr): 
         left = self.evaluate(expr.left)
@@ -47,7 +54,7 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         elif (expr.operator.type == TokenType.PLUS):
             if (isinstance(left, float) and isinstance(right, float)):
                 return float(left) + float(right)
-            if (isinstance(left, str) and isinstance(right, str)):
+            else:
                 return str(left) + str(right)
         elif (expr.operator.type == TokenType.SLASH):
             self.check_num_operands(left, right)
@@ -88,6 +95,13 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         print(self.stringify(value))
         return None
     
+    def visit_var_stmt(self, stmt):
+        value = None
+        if (stmt.initalizer is not None):
+            value = self.evaluate(stmt.initalizer)
+        self.environment.define(stmt.name.lexeme, value)
+        return None
+
     def is_truthy(self, object):
         if (object is None):
             return False
@@ -108,7 +122,7 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     def stringify(self, object):
         if (object == None):
             return "nil"
-        if (isinstance(object, float)):
+        if (isinstance(object, float) or isinstance(object, str)):
             text = str(object)
             if (text.endswith(".0")):
                 text = text[0: len(text) - 2]

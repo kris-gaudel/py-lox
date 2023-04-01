@@ -8,8 +8,8 @@ from token_type import TokenType
 class Lox:
     def __init__(self):
         self.args = sys.argv
-        self.has_error = False
-        self.has_runtime_error = False
+        # self.has_error = False
+        # self.has_runtime_error = False
         self.interpreter = Interpreter()
     
     def main(self):
@@ -23,22 +23,22 @@ class Lox:
     def run_file(self, path):
         f = open(path)
         self.run(f.read())
-        if (self.has_error):
-            raise ValueError("An error has occured!")
+        # if (self.has_error):
+        #     sys.exit(65)
 
     def run_prompt(self):
         while True:
             prompt = input("py-lox>")
             self.run(prompt)
-            self.has_error = False
+            # self.has_error = False
 
     def run(self, source):
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
         parser = Parser(tokens)
         statements = parser.parse()
-        if (self.has_error or self.has_runtime_error):
-            return
+        # if (self.has_error or self.has_runtime_error):
+        #     return
         # print(AstPrinter().print_expr(expression))
         self.interpreter.interpret(statements)
      
@@ -50,15 +50,15 @@ class Lox:
 
     def error(self, line, message):
         self.report(line, "", message)
-        self.has_error = True
+        #self.has_error = True
     
     def runtime_error(self, error):
-        self.has_runtime_error = True
+        #self.has_runtime_error = True
         raise error
     
     def report(self, line, where, message):
-        print("[line " + line + "] Error" + where + ": " + message)
-        self.has_error = True
+        raise RuntimeError("[line " + line + "] Error" + where + ": " + message)
+        # self.has_error = True
 
 s = Lox()
 s.main()

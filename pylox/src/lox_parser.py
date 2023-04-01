@@ -13,6 +13,16 @@ class Parser:
         
     def expression(self):
         return self.equality()
+    
+    def declaration(self):
+        try:
+            if (self.match(TokenType.VAR)):
+                return self.var_declaration()
+            return self.statement()
+        except:
+            #raise RuntimeError
+            self.synchronize()
+            return None
 
     def equality(self):
         expr = self.comparison()
@@ -93,6 +103,8 @@ class Parser:
             return Expr.Literal(None)
         elif (self.match(TokenType.NUMBER, TokenType.STRING)):
             return Expr.Literal(self.previous().literal)
+        elif (self.match(TokenType.IDENTIFIER)):
+            return Expr.Variable(self.previous())
         elif (self.match(TokenType.LEFT_PAREN)):
             expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
@@ -135,7 +147,7 @@ class Parser:
     def parse(self):
         statements = []
         while (not self.is_at_end()):
-            statements.append(self.statement())
+            statements.append(self.declaration())
         return statements
     
     def statement(self):
@@ -147,6 +159,14 @@ class Parser:
         value = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return Stmt.Print(value)
+    
+    def var_declaration(self):
+        name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
+        initalizer = None
+        if (self.match(TokenType.EQUAL)):
+            initalizer = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+        return Stmt.Var(name, initalizer)
     
     def expression_statement(self):
         expr = self.expression()

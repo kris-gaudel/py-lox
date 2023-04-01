@@ -10,11 +10,13 @@ class GenerateAst:
             "Binary": ('left', 'operator', 'right'),
             "Grouping": ('expr'),
             "Literal": ('value'),
-            "Unary": ('operator', 'right')
+            "Unary": ('operator', 'right'),
+            "Variable": ('name')
             }
         self.statements = {
             "Expression": ('expr'),
-            "Print": ('expr')
+            "Print": ('expr'),
+            "Var": ('name', 'initalizer')
         }
     
     def main(self):

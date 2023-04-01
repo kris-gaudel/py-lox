@@ -9,6 +9,10 @@ class StmtVisitor(ABC):
     def visit_print_stmt(self, expr):
         pass
 
+    @abstractmethod
+    def visit_var_stmt(self, expr):
+        pass
+
 class Stmt:
     @abstractmethod
     def __init__(self):
@@ -27,4 +31,12 @@ class Print(Stmt):
 
     def accept(self, visitor):
         return visitor.visit_print_stmt(self)
+
+class Var(Stmt):
+    def __init__(self, name, initalizer):
+        self.name = name
+        self.initalizer = initalizer
+
+    def accept(self, visitor):
+        return visitor.visit_var_stmt(self)
 
