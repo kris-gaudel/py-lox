@@ -123,6 +123,19 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         
     def execute(self, stmt):
         stmt.accept(self)
+
+    def execute_block(self, stmts, environment):
+        previous = self.environment
+        try:
+            self.environment = environment
+            for stmt in stmts:
+                self.execute(stmt)
+        finally:
+            self.environment = previous
+    
+    def visit_block_stmt(self, stmt):
+        self.execute_block(stmt.stmts, Environment(self.environment))
+        return None
         
     def stringify(self, object):
         if (object == None):
