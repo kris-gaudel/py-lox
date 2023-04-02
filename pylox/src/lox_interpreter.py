@@ -10,6 +10,16 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     def visit_literal_expr(self, expr):
         return expr.value
     
+    def visit_logical_expr(self, expr):
+        left = self.evaluate(expr.left)
+        if (expr.operator.type is TokenType.OR):
+            if (self.is_truthy(left)):
+                return left
+        else:
+            if (not self.is_truthy(left)):
+                return left
+        return self.evaluate(expr.right)
+    
     def visit_grouping_expr(self, expr):
         return self.evaluate(expr.expr)
     
@@ -21,11 +31,12 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
             return -float(right)
         elif (expr.operator.type == TokenType.BANG):
             return not self.is_truthy(right)
-
         return None
     
     def visit_variable_expr(self, expr):
         return self.environment.get(expr.name)
+    
+
     
     def visit_binary_expr(self, expr): 
         left = self.evaluate(expr.left)
@@ -77,9 +88,9 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         raise RuntimeError("Operands must be numbers.")
 
     def is_equal(self, a, b):
-        if (a == None and b == None):
+        if (a is None and b is None):
             return True
-        elif (a == None):
+        elif (a is None):
             return False
         return a == b
 
@@ -88,6 +99,13 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     
     def visit_expression_stmt(self, stmt):
         self.evaluate(stmt.expr)
+        return None
+
+    def visit_if_stmt(self, stmt):
+        if (self.is_truthy(self.evaluate(stmt.condition))):
+            self.execute(stmt.then_branch)
+        elif (stmt.else_branch is not None):
+            self.execute(stmt.else_branch)
         return None
     
     def visit_print_stmt(self, stmt):
@@ -100,6 +118,11 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         if (stmt.initalizer is not None):
             value = self.evaluate(stmt.initalizer)
         self.environment.define(stmt.name.lexeme, value)
+        return None
+    
+    def visit_while_stmt(self, stmt):
+        while (self.is_truthy(self.evaluate(stmt.condition))):
+            self.execute(stmt.body)
         return None
     
     def visit_assign_expr(self, expr):
@@ -138,7 +161,7 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         return None
         
     def stringify(self, object):
-        if (object == None):
+        if (object is None):
             return "nil"
         if (isinstance(object, float) or isinstance(object, str)):
             text = str(object)
