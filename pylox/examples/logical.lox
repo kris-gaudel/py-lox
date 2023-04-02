@@ -1,0 +1,15 @@
+if (1 == 2) {
+    print "1 is 2";
+} else if (2 == 2) {
+    print "2 is 2";
+} else {
+    print "huh?";
+}
+
+if (1 == 2) {
+    print "2 is 1?";
+} 
+print "2 is not 1";
+
+print 2 == 2;
+print 1 == 2;

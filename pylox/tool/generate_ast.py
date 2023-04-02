@@ -11,14 +11,17 @@ class GenerateAst:
             "Binary": ('left', 'operator', 'right'),
             "Grouping": ('expr'),
             "Literal": ('value'),
+            "Logical": ('left', 'operator', 'right'),
             "Unary": ('operator', 'right'),
             "Variable": ('name')
             }
         self.statements = {
             "Block": ('stmts'),
             "Expression": ('expr'),
+            "If": ('condition', 'then_branch', 'else_branch'),
             "Print": ('expr'),
-            "Var": ('name', 'initalizer')
+            "Var": ('name', 'initalizer'),
+            "While": ('condition', 'body')
         }
     
     def main(self):
