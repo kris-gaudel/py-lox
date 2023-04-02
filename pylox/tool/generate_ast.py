@@ -9,6 +9,7 @@ class GenerateAst:
         self.expressions = {
             "Assign": ('name', 'value'),
             "Binary": ('left', 'operator', 'right'),
+            "Call": ('callee', 'paren', 'arguments'),
             "Grouping": ('expr'),
             "Literal": ('value'),
             "Logical": ('left', 'operator', 'right'),
@@ -18,8 +19,10 @@ class GenerateAst:
         self.statements = {
             "Block": ('stmts'),
             "Expression": ('expr'),
+            "Function": ('name', 'params', 'body'),
             "If": ('condition', 'then_branch', 'else_branch'),
             "Print": ('expr'),
+            "Return": ('keyword', 'value'),
             "Var": ('name', 'initalizer'),
             "While": ('condition', 'body')
         }

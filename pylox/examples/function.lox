@@ -1,0 +1,27 @@
+fun sayHi(first, last) {
+  print "Hi, " + first + " " + last + "!";
+}
+
+sayHi("Dear", "Reader");
+
+fun add(a, b, c) {
+  print a + b + c;
+}
+
+add(1, 2, 3);
+
+fun count(n) {
+  if (n > 1) count(n - 1);
+  print n;
+}
+
+count(3);
+
+fun fib(n) {
+  if (n <= 1) return n;
+  return fib(n - 2) + fib(n - 1);
+}
+
+for (var i = 0; i < 20; i = i + 1) {
+  print fib(i);
+}
