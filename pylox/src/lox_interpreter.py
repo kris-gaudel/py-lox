@@ -1,11 +1,28 @@
 import Expr
 import Stmt
+from time import time
 from token_type import TokenType
 from environment import Environment
+from lox_callable import LoxCallable
+from lox_function import LoxFunction
+from lox_return import LoxReturn
 
 class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     def __init__(self) -> None:
-        self.environment = Environment()
+        self.globals = Environment()
+        self.environment = self.globals
+
+        class Clock(LoxCallable):
+            def __init__(self) -> None:
+                super().__init__()
+                self.start_time = time()
+            def arity(self):
+                return 0
+            def call(self, interpreter, arguments):
+                return time() - self.start_time
+            def to_string(self):
+                return "<native fn>;"
+        self.globals.define("clock", Clock())
 
     def visit_literal_expr(self, expr):
         return expr.value
@@ -35,8 +52,6 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     
     def visit_variable_expr(self, expr):
         return self.environment.get(expr.name)
-    
-
     
     def visit_binary_expr(self, expr): 
         left = self.evaluate(expr.left)
@@ -77,6 +92,19 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
             return float(left) * float(right)
         return None
     
+    def visit_call_expr(self, expr):
+        callee = self.evaluate(expr.callee)
+        arguments = []
+        for argument in expr.arguments:
+            arguments.append(self.evaluate(argument))
+        if (not isinstance(callee, LoxCallable)):
+            raise RuntimeError("Can only call functions and classes.")
+        function = callee
+        if (len(arguments) != function.arity()):
+            raise RuntimeError("Expected " + function.arity() + "arguments but got " + len(arguments) + ".")
+        
+        return function.call(self, arguments)
+    
     def check_num_operand(self, operand):
         if (isinstance(operand, float)):
             return
@@ -100,6 +128,11 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     def visit_expression_stmt(self, stmt):
         self.evaluate(stmt.expr)
         return None
+    
+    def visit_function_stmt(self, stmt):
+        function = LoxFunction(stmt)
+        self.environment.define(stmt.name.lexeme, function)
+        return None
 
     def visit_if_stmt(self, stmt):
         if (self.is_truthy(self.evaluate(stmt.condition))):
@@ -112,6 +145,12 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         value = self.evaluate(stmt.expr)
         print(self.stringify(value))
         return None
+    
+    def visit_return_stmt(self, stmt):
+        value = None
+        if (stmt.value is not None):
+            value = self.evaluate(stmt.value)
+        raise LoxReturn(value)
     
     def visit_var_stmt(self, stmt):
         value = None
