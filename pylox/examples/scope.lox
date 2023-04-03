@@ -17,3 +17,14 @@ var c = "global c";
 print a;
 print b;
 print c;
+{
+  var a = "first";
+  print a; // expect: first
+}
+
+{
+  var a = "second";
+  print a; // expect: second
+}
+var a;
+print a; // expect: nil

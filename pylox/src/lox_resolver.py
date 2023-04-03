@@ -126,6 +126,8 @@ class Resolver(Expr.ExprVisitor, Stmt.StmtVisitor):
         if (len(self.scopes) == 0):
             return
         scope = self.scopes[len(self.scopes) - 1]
+        if (name.lexeme in scope.keys()):
+            raise ValueError("Already a variable with this name in this scope.")
         scope.update({name.lexeme: False})
     
     def define(self, name):
