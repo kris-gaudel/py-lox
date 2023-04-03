@@ -11,6 +11,7 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     def __init__(self) -> None:
         self.globals = Environment()
         self.environment = self.globals
+        self.locals = {}
 
         class Clock(LoxCallable):
             def __init__(self) -> None:
@@ -51,7 +52,14 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         return None
     
     def visit_variable_expr(self, expr):
-        return self.environment.get(expr.name)
+        return self.look_up_variable(expr.name, expr)
+
+    def look_up_variable(self, name, expr):
+        distance = self.locals.get(expr)
+        if (distance is not None):
+            return self.environment.get_at(distance, name.lexeme)
+        else:
+            return self.globals.get(name)
     
     def visit_binary_expr(self, expr): 
         left = self.evaluate(expr.left)
@@ -166,7 +174,11 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     
     def visit_assign_expr(self, expr):
         value = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)
+        distance = self.locals.get(expr)
+        if (distance is not None):
+            self.environment.assign_at(distance, expr.name, value)
+        else:
+            self.globals.assign(expr.name, value)
         return value
 
     def is_truthy(self, object):
@@ -185,6 +197,9 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         
     def execute(self, stmt):
         stmt.accept(self)
+
+    def resolve(self, expr, depth):
+        self.locals.update({expr: depth})
 
     def execute_block(self, stmts, environment):
         previous = self.environment
