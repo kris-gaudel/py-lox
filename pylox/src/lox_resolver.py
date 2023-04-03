@@ -5,18 +5,42 @@ import Stmt
 class FunctionType(enum.Enum):
     NONE = enum.auto()
     FUNCTION = enum.auto()
+    INITIALIZER = enum.auto()
+    METHOD = enum.auto()
+
+class ClassType(enum.Enum):
+    NONE = enum.auto()
+    CLASS = enum.auto()
 
 class Resolver(Expr.ExprVisitor, Stmt.StmtVisitor):
     def __init__(self, interpreter):
         self.interpreter = interpreter
         self.scopes = []
         self.current_function = FunctionType.NONE
+        self.current_class = FunctionType.NONE
 
     def visit_block_stmt(self, stmt):
         self.begin_scope()
         self.resolve_stmts(stmt.stmts)
         self.end_scope()
         return None
+    
+    def visit_class_stmt(self, stmt):
+        enclosing_class = self.current_class
+        self.current_class = ClassType.CLASS
+        self.declare(stmt.name)
+        self.define(stmt.name)
+        self.begin_scope()
+        self.scopes[len(self.scopes) - 1].update({"this": True})
+        for method in stmt.methods:
+            declaration = FunctionType.METHOD
+            if (method.name.lexeme == "init"):
+                declaration = FunctionType.INITIALIZER
+            self.resolve_function(method, declaration)
+        self.end_scope()
+        self.current_class = enclosing_class
+        return None
+        
     
     def visit_expression_stmt(self, stmt):
         self.resolve(stmt.expr)
@@ -43,13 +67,15 @@ class Resolver(Expr.ExprVisitor, Stmt.StmtVisitor):
         if (self.current_function is FunctionType.NONE):
             raise ValueError("Can't return from top-level code.")
         if (stmt.value is not None):
+            if (self.current_function is FunctionType.INITIALIZER):
+                raise ValueError("Can't return a value from an initializer.")
             self.resolve(stmt.value)
         return None
 
     def visit_var_stmt(self, stmt):
         self.declare(stmt.name)
-        if (stmt.initalizer is not None):
-            self.resolve(stmt.initalizer)
+        if (stmt.initializer is not None):
+            self.resolve(stmt.initializer)
         self.define(stmt.name)
         return None
     
@@ -74,6 +100,10 @@ class Resolver(Expr.ExprVisitor, Stmt.StmtVisitor):
             self.resolve(arg)
         return None
     
+    def visit_get_expr(self, expr):
+        self.resolve(expr.object)
+        return None
+    
     def visit_grouping_expr(self, expr):
         self.resolve(expr.expr)
         return None
@@ -86,6 +116,17 @@ class Resolver(Expr.ExprVisitor, Stmt.StmtVisitor):
         self.resolve(expr.right)
         return None
     
+    def visit_set_expr(self, expr):
+        self.resolve(expr.value)
+        self.resolve(expr.object)
+        return None
+    
+    def visit_this_expr(self, expr):
+        if (self.current_class is ClassType.NONE):
+            raise ValueError("Can't use 'this' outside of a class.")
+        self.resolve_local(expr, expr.keyword)
+        return None
+
     def visit_unary_expr(self, expr):
         self.resolve(expr.right)
         return None

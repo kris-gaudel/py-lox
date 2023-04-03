@@ -10,20 +10,24 @@ class GenerateAst:
             "Assign": ('name', 'value'),
             "Binary": ('left', 'operator', 'right'),
             "Call": ('callee', 'paren', 'arguments'),
+            "Get": ('object', 'name'),
             "Grouping": ('expr'),
             "Literal": ('value'),
             "Logical": ('left', 'operator', 'right'),
+            "Set": ('object', 'name', 'value'),
+            "This": ('keyword'),
             "Unary": ('operator', 'right'),
             "Variable": ('name')
             }
         self.statements = {
             "Block": ('stmts'),
+            "Class": ('name', 'methods'),
             "Expression": ('expr'),
             "Function": ('name', 'params', 'body'),
             "If": ('condition', 'then_branch', 'else_branch'),
             "Print": ('expr'),
             "Return": ('keyword', 'value'),
-            "Var": ('name', 'initalizer'),
+            "Var": ('name', 'initializer'),
             "While": ('condition', 'body')
         }
     

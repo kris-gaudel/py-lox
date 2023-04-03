@@ -5,5 +5,5 @@ class LoxToken:
         self.literal = literal
         self.line = line
 
-    def to_string(self) -> str:
+    def __str__(self):
         return self.type + " " + self.lexeme + " " + self.literal

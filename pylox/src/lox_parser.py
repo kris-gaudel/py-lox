@@ -20,15 +20,25 @@ class Parser:
                 return self.function("function")
             if (self.match(TokenType.VAR)):
                 return self.var_declaration()
+            if (self.match(TokenType.CLASS)):
+                return self.class_declaration()
             return self.statement()
         except:
             #raise RuntimeError
             self.synchronize()
             return None
+        
+    def class_declaration(self):
+        name = self.consume(TokenType.IDENTIFIER, "Expect a class name.")
+        self.consume(TokenType.LEFT_BRACE, "Expect a '{' before class body.")
+        methods = []
+        while (not self.check(TokenType.RIGHT_BRACE)):
+            methods.append(self.function("method"))
+        self.consume(TokenType.RIGHT_BRACE, "Expect a '}' after class body.")
+        return Stmt.Class(name, methods)
 
     def equality(self):
         expr = self.comparison()
-
         while (self.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)):
             operator = self.previous()
             right = self.comparison()
@@ -113,6 +123,9 @@ class Parser:
         while True:
             if (self.match(TokenType.LEFT_PAREN)):
                 expr = self.finish_call(expr)
+            elif (self.match(TokenType.DOT)):
+                name = self.consume(TokenType.IDENTIFIER, "Expect property name after '.'.")
+                expr = Expr.Get(expr, name)
             else:
                 break
         return expr
@@ -126,6 +139,8 @@ class Parser:
             return Expr.Literal(None)
         elif (self.match(TokenType.NUMBER, TokenType.STRING)):
             return Expr.Literal(self.previous().literal)
+        elif (self.match(TokenType.THIS)):
+            return Expr.This(self.previous())
         elif (self.match(TokenType.IDENTIFIER)):
             return Expr.Variable(self.previous())
         elif (self.match(TokenType.LEFT_PAREN)):
@@ -213,11 +228,11 @@ class Parser:
     
     def var_declaration(self):
         name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
-        initalizer = None
+        initializer = None
         if (self.match(TokenType.EQUAL)):
-            initalizer = self.expression()
+            initializer = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
-        return Stmt.Var(name, initalizer)
+        return Stmt.Var(name, initializer)
     
     def while_statement(self):
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
@@ -228,13 +243,13 @@ class Parser:
     
     def for_statement(self):
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
-        initalizer = None
+        initializer = None
         if (self.match(TokenType.SEMICOLON)):
             pass
         elif (self.match(TokenType.VAR)):
-            initalizer = self.var_declaration()
+            initializer = self.var_declaration()
         else:
-            initalizer = self.expression_statement()
+            initializer = self.expression_statement()
         condition = None
         if (not self.check(TokenType.SEMICOLON)):
             condition = self.expression()
@@ -249,8 +264,8 @@ class Parser:
         if (condition is None):
             condition = Expr.Literal(True)
         body = Stmt.While(condition, body)
-        if (initalizer is not None):
-            body = Stmt.Block([initalizer, body])
+        if (initializer is not None):
+            body = Stmt.Block([initializer, body])
         return body     
     
     def expression_statement(self):
@@ -288,8 +303,11 @@ class Parser:
             value = self.assignment()
             if (isinstance(expr, Expr.Variable)):
                 return Expr.Assign(expr.name, value)
+            elif (isinstance(expr, Expr.Get)):
+                return Expr.Set(expr.object, expr.name, value)
             raise ParseError("Invalid assignment target.")
         return expr
+    
     
     def logic_or(self):
         expr = self.logic_and()

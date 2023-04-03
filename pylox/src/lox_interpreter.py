@@ -6,6 +6,8 @@ from environment import Environment
 from lox_callable import LoxCallable
 from lox_function import LoxFunction
 from lox_return import LoxReturn
+from lox_class import LoxClass
+from lox_instance import LoxInstance
 
 class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     def __init__(self) -> None:
@@ -21,7 +23,7 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
                 return 0
             def call(self, interpreter, arguments):
                 return time() - self.start_time
-            def to_string(self):
+            def __str__(self):
                 return "<native fn>;"
         self.globals.define("clock", Clock())
 
@@ -37,6 +39,17 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
             if (not self.is_truthy(left)):
                 return left
         return self.evaluate(expr.right)
+    
+    def visit_set_expr(self, expr):
+        object = self.evaluate(expr.object)
+        if(not isinstance(object, LoxInstance)):
+            raise RuntimeError("Only instances have fields")
+        value = self.evaluate(expr.value)
+        object.set(expr.name, value)
+        return value
+    
+    def visit_this_expr(self, expr):
+        return self.look_up_variable(expr.keyword, expr)
     
     def visit_grouping_expr(self, expr):
         return self.evaluate(expr.expr)
@@ -113,6 +126,12 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         
         return function.call(self, arguments)
     
+    def visit_get_expr(self, expr):
+        object = self.evaluate(expr.object)
+        if (isinstance(object, LoxInstance)):
+            return object.get(expr.name)
+        raise RuntimeError("Only instances have properties.")
+    
     def check_num_operand(self, operand):
         if (isinstance(operand, float)):
             return
@@ -138,7 +157,7 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
         return None
     
     def visit_function_stmt(self, stmt):
-        function = LoxFunction(stmt, self.environment)
+        function = LoxFunction(stmt, self.environment, False)
         self.environment.define(stmt.name.lexeme, function)
         return None
 
@@ -162,8 +181,8 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     
     def visit_var_stmt(self, stmt):
         value = None
-        if (stmt.initalizer is not None):
-            value = self.evaluate(stmt.initalizer)
+        if (stmt.initializer is not None):
+            value = self.evaluate(stmt.initializer)
         self.environment.define(stmt.name.lexeme, value)
         return None
     
@@ -212,6 +231,16 @@ class Interpreter(Expr.ExprVisitor, Stmt.StmtVisitor):
     
     def visit_block_stmt(self, stmt):
         self.execute_block(stmt.stmts, Environment(self.environment))
+        return None
+    
+    def visit_class_stmt(self, stmt):
+        self.environment.define(stmt.name.lexeme, None)
+        methods = {}
+        for method in stmt.methods:
+            function = LoxFunction(method, self.environment, method.name.lexeme == "init")
+            methods.update({method.name.lexeme: function})
+        klass = LoxClass(stmt.name.lexeme, methods)
+        self.environment.assign(stmt.name, klass)
         return None
         
     def stringify(self, object):
