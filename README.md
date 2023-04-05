@@ -7,7 +7,7 @@ A tree-walking Lox interpreter in Python - based on the book "Crafting Interpret
 - Get better at Python
 
 # Features
-Py-lox is a fully-featured interpreter for the Lox programming language. The lox language is very similar to Java, with focus on object-oriented design. \
+Py-lox is a fully-featured interpreter for the Lox programming language. The lox language is very similar to Java, with focus on object-oriented design. 
 #### The Lox language has the following features:
 - Variables (`var`)
 - Conditionals (`if`, `else if`, `else`)
