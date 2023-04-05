@@ -30,12 +30,16 @@ class Parser:
         
     def class_declaration(self):
         name = self.consume(TokenType.IDENTIFIER, "Expect a class name.")
+        super_class = None
+        if (self.match(TokenType.LESS)):
+            self.consume(TokenType.IDENTIFIER, "Expect superclass name.")
+            super_class = Expr.Variable(self.previous())
         self.consume(TokenType.LEFT_BRACE, "Expect a '{' before class body.")
         methods = []
         while (not self.check(TokenType.RIGHT_BRACE)):
             methods.append(self.function("method"))
         self.consume(TokenType.RIGHT_BRACE, "Expect a '}' after class body.")
-        return Stmt.Class(name, methods)
+        return Stmt.Class(name, super_class, methods)
 
     def equality(self):
         expr = self.comparison()
@@ -109,12 +113,10 @@ class Parser:
     def finish_call(self, callee):
         arguments = []
         if (not self.check(TokenType.RIGHT_PAREN)):
-            while True:
+            while self.match(TokenType.COMMA):
                 if (len(arguments) >= 255):
                     raise ValueError("Can't have more than 255 arguments.")
                 arguments.append(self.expression())
-                if (not self.match(TokenType.COMMA)):
-                    break
         paren = self.consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.")
         return Expr.Call(callee, paren, arguments)
     
@@ -139,6 +141,11 @@ class Parser:
             return Expr.Literal(None)
         elif (self.match(TokenType.NUMBER, TokenType.STRING)):
             return Expr.Literal(self.previous().literal)
+        elif (self.match(TokenType.SUPER)):
+            keyword = self.previous()
+            self.consume(TokenType.DOT, "Expect '.' after 'super'.")
+            method = self.consume(TokenType.IDENTIFIER, "Expect superclass method name.")
+            return Expr.Super(keyword, method)
         elif (self.match(TokenType.THIS)):
             return Expr.This(self.previous())
         elif (self.match(TokenType.IDENTIFIER)):

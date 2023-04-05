@@ -15,13 +15,14 @@ class GenerateAst:
             "Literal": ('value'),
             "Logical": ('left', 'operator', 'right'),
             "Set": ('object', 'name', 'value'),
+            "Super": ('keyword', 'method'),
             "This": ('keyword'),
             "Unary": ('operator', 'right'),
             "Variable": ('name')
             }
         self.statements = {
             "Block": ('stmts'),
-            "Class": ('name', 'methods'),
+            "Class": ('name', 'super_class','methods'),
             "Expression": ('expr'),
             "Function": ('name', 'params', 'body'),
             "If": ('condition', 'then_branch', 'else_branch'),
