@@ -24,7 +24,7 @@ Printing to output:
 print "Hello, world!";
 ```
 
-If statements: \
+Conditionals:
 
 ```lox
 var a = 1;
