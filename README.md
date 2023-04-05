@@ -7,7 +7,8 @@ A tree-walking Lox interpreter in Python - based on the book "Crafting Interpret
 - Get better at Python
 
 # Features
-Py-lox is a fully-featured interpreter for the Lox programming language. The lox language is very similar to Java, with focus on object-oriented design. The Lox language has the following features:
+Py-lox is a fully-featured interpreter for the Lox programming language. The lox language is very similar to Java, with focus on object-oriented design. \
+#### The Lox language has the following features:
 - Variables (`var`)
 - Conditionals (`if`, `else if`, `else`)
 - Iteration (`for`, `while`)
@@ -16,15 +17,35 @@ Py-lox is a fully-featured interpreter for the Lox programming language. The lox
 - Printing (`print`)
 - Comments (`//`)
 
+# Running the Interpreter
+### Clone the repository: 
+`git clone https://github.com/kris-gaudel/py-lox.git`
+
+### Run the interpreter
+```
+cd py-lox
+cd pylox
+cd src
+```
+#### To run the REPL:
+```
+python3 lox.py
+```
+
+#### To run a Lox file:
+```
+python3 lox.py [path to file]
+```
+
 # Examples
 
-Printing to output: 
+#### Printing to output: 
 
 ```lox
 print "Hello, world!";
 ```
 
-Conditionals:
+#### Conditionals:
 
 ```lox
 var a = 1;
@@ -36,7 +57,7 @@ if (a == 1) {
 }
 ```
 
-Loops:
+#### Loops:
 
 ```lox
 var b = 1;
@@ -51,7 +72,7 @@ for (var b = 1; b < 5; b = b + 1) {
 }
 ```
 
-Functions:
+#### Functions:
 
 ```lox
 fun say_hello(name) {
@@ -60,7 +81,7 @@ fun say_hello(name) {
 print say_hello("Kris");
 ```
 
-Classes:
+#### Classes:
 ```lox
 class Breakfast {
   init(meat, bread) {
