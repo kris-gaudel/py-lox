@@ -113,6 +113,7 @@ class Parser:
     def finish_call(self, callee):
         arguments = []
         if (not self.check(TokenType.RIGHT_PAREN)):
+            arguments.append(self.expression())
             while self.match(TokenType.COMMA):
                 if (len(arguments) >= 255):
                     raise ValueError("Can't have more than 255 arguments.")
@@ -285,12 +286,11 @@ class Parser:
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after " + kind + " name.")
         parameters = []
         if (not self.check(TokenType.RIGHT_PAREN)):
-            while True:
+            parameters.append(self.consume(TokenType.IDENTIFIER, "Expect parameter name."))
+            while (self.match(TokenType.COMMA)):
                 if (len(parameters) >= 255):
                     raise ValueError("Can't have more than 255 parameters.")
                 parameters.append(self.consume(TokenType.IDENTIFIER, "Expect parameter name."))
-                if (not self.match(TokenType.COMMA)):
-                    break
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
         self.consume(TokenType.LEFT_BRACE, "Expect '{' before " + kind + " body.")
         body = self.block()
